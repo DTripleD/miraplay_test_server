@@ -1,10 +1,6 @@
 import express from "express";
 
-import {
-  registerSchema,
-  loginSchema,
-  refreshSchema,
-} from "../../schemas/user.js";
+import { registerSchema, loginSchema } from "../../schemas/user.js";
 
 import validateBody from "../../middlewares/validateBody.js";
 import isEmptyBody from "../../middlewares/isEmptyBody.js";
