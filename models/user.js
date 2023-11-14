@@ -6,10 +6,6 @@ import emailRegexp from "../helpers/regExp.js";
 
 const userSchema = new Schema(
   {
-    name: {
-      type: String,
-      required: true,
-    },
     email: {
       type: String,
       required: [true, "Email is required"],

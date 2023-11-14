@@ -41,7 +41,6 @@ const signUp = async (req, res) => {
   res.status(201).json({
     accessToken,
     user: {
-      name: newUser.name,
       email: newUser.email,
     },
   });
@@ -71,15 +70,14 @@ const signIn = async (req, res) => {
   await User.findByIdAndUpdate(user._id, { accessToken });
   res.json({
     accessToken,
-    user: { name: user.name, email: user.email },
+    user: { email: user.email },
   });
 };
 
 const getCurrentUser = async (req, res) => {
-  const { name, email } = req.user;
+  const { email } = req.user;
 
   res.json({
-    name,
     email,
   });
 };
