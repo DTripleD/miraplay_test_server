@@ -10,9 +10,7 @@ dotenv.config();
 
 const { SECRET_KEY } = process.env;
 
-console.log(SECRET_KEY);
-
-const accessTokenExpires = "30m";
+const accessTokenExpires = "24h";
 
 const signUp = async (req, res) => {
   const { email, password } = req.body;
@@ -74,18 +72,44 @@ const signIn = async (req, res) => {
   });
 };
 
-const getCurrentUser = async (req, res) => {
-  const { email } = req.user;
-
-  res.json({
-    email,
-  });
-};
-
 const logoutUser = async (req, res) => {
   const { _id } = req.user;
   await User.findByIdAndUpdate(_id, { accessToken: "" });
   res.status(204).json();
+};
+
+const getRefreshToken = async (req, res, next) => {
+  const { refreshToken: token } = req.body;
+  try {
+    const { id } = jwt.verify(token, REFRESH_SECRET_KEY);
+
+    const isExist = await User.findOne({ refreshToken: token });
+    if (!isExist) {
+      next(HttpError(403), "Token invalid");
+    }
+
+    const payload = {
+      id,
+    };
+
+    const accessToken = jwt.sign(payload, ACCESS_SECRET_KEY, {
+      expiresIn: accessTokenExpires,
+    });
+
+    res.json({ accessToken });
+  } catch (error) {
+    next(HttpError(403), error.message);
+  }
+};
+
+const getCurrentUser = async (req, res) => {
+  const { email, accessToken } = req.user;
+  console.log(req.user);
+
+  res.json({
+    email,
+    accessToken,
+  });
 };
 
 export default {
@@ -93,4 +117,5 @@ export default {
   signIn: ctrlWrapper(signIn),
   getCurrentUser: ctrlWrapper(getCurrentUser),
   logoutUser: ctrlWrapper(logoutUser),
+  getRefreshToken: ctrlWrapper(getRefreshToken),
 };
